@@ -384,7 +384,7 @@
       setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
     } catch (error) {
       console.error("Download certificate failed:", error);
-      alert(
+      //alert(
         "Không thể tải chứng chỉ tự động.\n\n" +
         "Hãy đảm bảo file PDF nằm cùng thư mục với final.html trên GitHub Pages."
       );
@@ -393,6 +393,58 @@
       button.style.pointerEvents = "";
       button.style.opacity = "";
       button.innerHTML = originalText;
+    }
+  });
+})();
+</script>
+
+
+<script>
+(function () {
+  const downloadButton = document.getElementById('downloadCertificate');
+  const pdfUrl = 'https://raw.githubusercontent.com/quyt0/lehanh/refs/heads/main/OpenEDU%20-%20%20Kho%C3%A1%20h%E1%BB%8Dc%20%E1%BB%A8ng%20d%E1%BB%A5ng%20AI%20cho%20Thanh%20ni%C3%AAn%20Vi%E1%BB%87t%20Nam.pdf';
+  const fileName = 'OpenEDU -  Khoá học Ứng dụng AI cho Thanh niên Việt Nam.pdf';
+
+  if (!downloadButton) return;
+
+  downloadButton.addEventListener('click', async function () {
+    const oldHTML = downloadButton.innerHTML;
+
+    try {
+      downloadButton.disabled = true;
+      downloadButton.innerHTML = 'Đang tải xuống...';
+
+      const response = await fetch(pdfUrl, {
+        method: 'GET',
+        mode: 'cors',
+        cache: 'no-store'
+      });
+
+      if (!response.ok) {
+        throw new Error('HTTP ' + response.status);
+      }
+
+      const blob = await response.blob();
+
+      // Force a browser download instead of navigating to/opening the PDF.
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = blobUrl;
+      link.download = fileName;
+      link.style.display = 'none';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      setTimeout(function () {
+        URL.revokeObjectURL(blobUrl);
+      }, 1000);
+    } catch (error) {
+      console.error('Certificate download failed:', error);
+      //alert('Không thể tải chứng chỉ. Vui lòng thử lại.');
+    } finally {
+      downloadButton.disabled = false;
+      downloadButton.innerHTML = oldHTML;
     }
   });
 })();
