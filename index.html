@@ -450,5 +450,145 @@
 })();
 </script>
 
+
+<script id="mobile-share-copy-hamburger-fix">
+(() => {
+  // === Share / Copy only ===
+  const shareUrl = "https://phocap.ai/vi/user/BybeKBJFLAfd6rsk/certificate/3fqYBu8owYIYk7EH";
+  const shareText = "Hoàn thành khoá học phổ cập AI - Một cột mốc đáng nhớ. AI đã giúp tôi tôi cách làm việc thông minh hơn, còn bạn thì sao?";
+
+  const openShare = (url) => {
+    window.open(url, "_blank", "noopener,noreferrer,width=720,height=650");
+  };
+
+  document.getElementById("shareFacebook")?.addEventListener("click", () => {
+    openShare("https://www.facebook.com/sharer/sharer.php?u=" + encodeURIComponent(shareUrl));
+  });
+
+  document.getElementById("shareX")?.addEventListener("click", () => {
+    openShare(
+      "https://twitter.com/intent/tweet?url=" + encodeURIComponent(shareUrl) +
+      "&text=" + encodeURIComponent(shareText)
+    );
+  });
+
+  document.getElementById("shareLinkedIn")?.addEventListener("click", () => {
+    openShare("https://www.linkedin.com/sharing/share-offsite/?url=" + encodeURIComponent(shareUrl));
+  });
+
+  document.getElementById("copyLinkButton")?.addEventListener("click", async () => {
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(shareUrl);
+      } else {
+        const textarea = document.createElement("textarea");
+        textarea.value = shareUrl;
+        textarea.setAttribute("readonly", "");
+        textarea.style.position = "fixed";
+        textarea.style.left = "-9999px";
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand("copy");
+        textarea.remove();
+      }
+      alert("Đã sao chép liên kết chứng chỉ.");
+    } catch (error) {
+      window.prompt("Sao chép liên kết chứng chỉ:", shareUrl);
+    }
+  });
+
+  // === Hamburger menu only ===
+  const hamburger = document.querySelector('header button[aria-haspopup="dialog"][aria-controls]');
+  if (!hamburger) return;
+
+  let mobileMenu = document.getElementById("mobileHamburgerMenu");
+
+  if (!mobileMenu) {
+    mobileMenu = document.createElement("div");
+    mobileMenu.id = "mobileHamburgerMenu";
+    mobileMenu.innerHTML = `
+      <a href="https://phocap.ai/vi/introduction">Giới thiệu</a>
+      <a href="https://phocap.ai/vi/courses">Khóa học</a>
+      <a href="https://phocap.ai/vi/ranking">Thống kê</a>
+      <a href="https://phocap.ai/vi/schedule">Lịch trình</a>
+      <a href="https://phocap.ai/vi/news-feed">Tin tức</a>
+    `;
+
+    Object.assign(mobileMenu.style, {
+      position: "fixed",
+      left: "0",
+      right: "0",
+      top: "56px",
+      zIndex: "100",
+      display: "none",
+      flexDirection: "column",
+      gap: "0",
+      background: "var(--primary)",
+      borderTop: "1px solid rgba(255,255,255,.15)",
+      boxShadow: "0 8px 20px rgba(0,0,0,.18)",
+      padding: "8px 12px 12px",
+    });
+
+    mobileMenu.querySelectorAll("a").forEach((link) => {
+      Object.assign(link.style, {
+        display: "block",
+        padding: "13px 12px",
+        color: "var(--primary-foreground)",
+        fontSize: "15px",
+        fontWeight: "600",
+        textDecoration: "none",
+        borderRadius: "6px",
+      });
+    });
+
+    document.body.appendChild(mobileMenu);
+  }
+
+  const syncMenuTop = () => {
+    const header = hamburger.closest("header");
+    if (header) {
+      mobileMenu.style.top = header.getBoundingClientRect().bottom + "px";
+    }
+  };
+
+  const closeMenu = () => {
+    mobileMenu.style.display = "none";
+    hamburger.setAttribute("aria-expanded", "false");
+  };
+
+  hamburger.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    syncMenuTop();
+    const isOpen = mobileMenu.style.display === "flex";
+    mobileMenu.style.display = isOpen ? "none" : "flex";
+    hamburger.setAttribute("aria-expanded", String(!isOpen));
+  });
+
+  mobileMenu.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", closeMenu);
+  });
+
+  document.addEventListener("click", (event) => {
+    if (
+      mobileMenu.style.display === "flex" &&
+      !mobileMenu.contains(event.target) &&
+      !hamburger.contains(event.target)
+    ) {
+      closeMenu();
+    }
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") closeMenu();
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth >= 768) closeMenu();
+  });
+})();
+</script>
+
 </body>
 </html>
