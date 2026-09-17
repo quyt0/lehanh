@@ -350,15 +350,50 @@
     }
   });
 
-  document.getElementById("downloadCertificate")?.addEventListener("click", () => {
-    // The PDF is shipped beside index.html in the ZIP, and download keeps
-    // the original filename supplied by the user.
-    const a = document.createElement("a");
-    a.href = pdfFile;
-    a.download = pdfFile;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
+  // GitHub Pages: fetch the PDF first, turn it into a Blob URL, then
+  // trigger an actual download with the original filename.
+  document.getElementById("downloadCertificate")?.addEventListener("click", async (event) => {
+    const button = event.currentTarget;
+    const originalText = button.innerHTML;
+
+    try {
+      button.disabled = true;
+      button.style.pointerEvents = "none";
+      button.style.opacity = "0.7";
+
+      const response = await fetch(pdfFile, {
+        method: "GET",
+        cache: "no-cache"
+      });
+
+      if (!response.ok) {
+        throw new Error("Không tải được PDF: HTTP " + response.status);
+      }
+
+      const blob = await response.blob();
+      const blobUrl = URL.createObjectURL(blob);
+
+      const a = document.createElement("a");
+      a.href = blobUrl;
+      a.download = pdfFile;
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+    } catch (error) {
+      console.error("Download certificate failed:", error);
+      alert(
+        "Không thể tải chứng chỉ tự động.\n\n" +
+        "Hãy đảm bảo file PDF nằm cùng thư mục với final.html trên GitHub Pages."
+      );
+    } finally {
+      button.disabled = false;
+      button.style.pointerEvents = "";
+      button.style.opacity = "";
+      button.innerHTML = originalText;
+    }
   });
 })();
 </script>
